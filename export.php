@@ -38,7 +38,8 @@ if ($courseid) {
 } else {
     print_error('missingcourseorcmid', 'question');
 }
-// require_sesskey();  ===========================================================
+
+// require_sesskey(); 
 
 // Load the necessary data.
 $contexts = new question_edit_contexts($thiscontext);
@@ -49,10 +50,14 @@ if ($questions = $DB->get_records('quiz_slots', array('quizid' => $quizid))) {
     }   
 }
 
-// Check permissions.
-foreach ($questiondata as $key => $value) {
-    question_require_capability_on($value, 'view');
-}
+/**
+ * Check if the Quiz is visible to the user only then display it : 
+ * Teacher can choose to hide the quiz from the students in that case it should not be visible to students
+ */
+$modinfo = get_fast_modinfo($courseid);
+$cm = $modinfo->get_cm($DB->get_record('course_modules', array('module' => 16, 'instance' => $quizid))->id);
+if(!$cm->uservisible)
+    print_error('noaccess', 'block_export_quiz');
 
 
 // Initialise $PAGE. Nothing is output, so this does not really matter. Just avoids notices.
@@ -67,6 +72,7 @@ $qformat->setContexts($contexts->having_one_edit_tab_cap('export'));
 $qformat->setCourse($COURSE);
 $qformat->setCattofile(false);
 $qformat->setContexttofile(false);
+$qformat->setQuestions($questiondata);
 
 // Get quiz name to assign it to file name used for exporting
 $filename = get_string('quiz', 'block_export_quiz');
@@ -74,7 +80,6 @@ if ($quiz = $DB->get_record('quiz', array('id' => $quizid))) {
     $filename = $quiz->name;
 }
 
-$qformat->setQuestions($questiondata);
 
 // Pre-processing the export
 if (!$qformat->exportpreprocess()) {

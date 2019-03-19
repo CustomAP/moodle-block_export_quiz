@@ -35,7 +35,7 @@ class block_export_quiz extends block_base{
 	 * Should be only visible in a particular course	
     */
     public function applicable_formats() {
-		return array ('course-view' => true);
+		return array ('course-view' => true, 'mod-quiz' => true);
 	}
 
 
@@ -65,6 +65,16 @@ class block_export_quiz extends block_base{
         if ($quizes = $DB->get_records('quiz', array('course' => $courseid))) {
 			$this->content->text .= html_writer::start_tag('ul');
 		foreach ($quizes as $quiz) {
+
+                /**
+                 * Check if the Quiz is visible to the user only then display it : 
+                 * Teacher can choose to hide the quiz from the students in that case it should not be visible to students
+                 */
+                $modinfo = get_fast_modinfo($this->page->course);
+                $cm = $modinfo->get_cm($DB->get_record('course_modules', array('module' => 16, 'instance' => $quiz->id))->id);
+                if(!$cm->uservisible)
+                    continue;
+
 				$pageurl = new moodle_url('/blocks/export_quiz/export.php',
 					array('courseid' => $COURSE->id,
 						'id' => $quiz->id));
@@ -73,7 +83,8 @@ class block_export_quiz extends block_base{
 				$this->content->text .= html_writer::end_tag('li');
 			}
 			$this->content->text .= html_writer::end_tag('ul');
-		}	
+		}
+
 		return $this->content;
     }
 }

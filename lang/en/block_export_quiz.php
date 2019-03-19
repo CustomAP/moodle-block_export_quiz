@@ -28,3 +28,4 @@ $string['pluginname'] = 'Export Quiz';
 $string['privacy:metadata'] = 'The Export Quiz block provides a feature to download the quiz.';
 $string['footer'] = 'Click on a quiz name to download it.';
 $string['quiz'] = 'Quiz';
+$string['noaccess'] = 'No access to the given quiz';
