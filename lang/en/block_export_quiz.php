@@ -27,3 +27,4 @@ $string['export_quiz:myaddinstance'] = 'Add a new Export Quiz block to Dashboard
 $string['pluginname'] = 'Export Quiz';
 $string['privacy:metadata'] = 'The Export Quiz block provides a feature to download the quiz.';
 $string['footer'] = 'Click on a quiz name to download it.';
+$string['quiz'] = 'Quiz';

@@ -22,8 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-require_once(__DIR__.'/../config.php');
+require_once(__DIR__.'/../../config.php');
 
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/question/format/xml/format.php');
@@ -33,50 +32,64 @@ $quizid = required_param('id', PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 
 if ($courseid) {
-    print_r('expression');
-    require_login($courseid, false);
+    require_login($courseid);
     $thiscontext = context_course::instance($courseid);
     $urlparams['courseid'] = $courseid;
 } else {
     print_error('missingcourseorcmid', 'question');
 }
-require_sesskey();
+// require_sesskey();  ===========================================================
 
 // Load the necessary data.
 $contexts = new question_edit_contexts($thiscontext);
-$questiondata = '';
-if ($questions = $DB->get_records('quiz_slots', array('course' => $courseid))) {
+$questiondata = array();
+if ($questions = $DB->get_records('quiz_slots', array('quizid' => $quizid))) {
     foreach ($questions as $question) {
-        $questiondata .= question_bank::load_question_data($question->questionid);
+        array_push($questiondata, question_bank::load_question_data($question->questionid));
     }   
 }
 
-print_r($questiondata);
-
 // Check permissions.
-// question_require_capability_on($questiondata, 'view');
+foreach ($questiondata as $key => $value) {
+    question_require_capability_on($value, 'view');
+}
 
-// // Initialise $PAGE. Nothing is output, so this does not really matter. Just avoids notices.
-// $nexturl = new moodle_url('/question/type/stack/questiontestrun.php', $urlparams);
-// $PAGE->set_url('/blocks/export_quiz/export.php', $urlparams);
-// $PAGE->set_heading(get_string('pluginname','block_export_quiz'));
-// $PAGE->set_pagelayout('admin');
 
-// // Set up the export format.
-// $qformat = new qformat_xml();
-// $filename = question_default_export_filename($COURSE, $questiondata) .
-//         $qformat->export_file_extension();
-// $qformat->setContexts($contexts->having_one_edit_tab_cap('export'));
-// $qformat->setCourse($COURSE);
-// $qformat->setQuestions([$questiondata]);
-// $qformat->setCattofile(false);
-// $qformat->setContexttofile(false);
+// Initialise $PAGE. Nothing is output, so this does not really matter. Just avoids notices.
+$nexturl = new moodle_url('/question/type/stack/questiontestrun.php', $urlparams);
+$PAGE->set_url('/blocks/export_quiz/export.php', $urlparams);
+$PAGE->set_heading(get_string('pluginname','block_export_quiz'));
+$PAGE->set_pagelayout('admin');
 
-// // Do the export.
-// if (!$qformat->exportpreprocess()) {
-//     send_file_not_found();
-// }
-// if (!$content = $qformat->exportprocess(true)) {
-//     send_file_not_found();
-// }
-// send_file($content, $filename, 0, 0, true, true, $qformat->mime_type());
+// Set up the export format.
+$qformat = new qformat_xml();
+$qformat->setContexts($contexts->having_one_edit_tab_cap('export'));
+$qformat->setCourse($COURSE);
+$qformat->setCattofile(false);
+$qformat->setContexttofile(false);
+
+// Get quiz name to assign it to file name used for exporting
+$filename = get_string('quiz', 'block_export_quiz');
+if ($quiz = $DB->get_record('quiz', array('id' => $quizid))) {
+    $filename = $quiz->name;
+}
+
+// Append all contents after converting each question to xml in $file variable
+$file = '';
+foreach ($questiondata as $key => $value) {
+    $qformat->setQuestions([$value]);
+
+    // Pre-processing the export
+    if (!$qformat->exportpreprocess()) {
+        send_file_not_found();
+    }
+
+    // Actual export process to get the converted string
+    if (!$content = $qformat->exportprocess(true)) {
+        send_file_not_found();
+    }
+
+    $file .= $content;
+}
+
+send_file($file, $filename, 0, 0, true, true, $qformat->mime_type());

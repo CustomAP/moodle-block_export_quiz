@@ -61,6 +61,7 @@ class block_export_quiz extends block_base{
 
         $courseid = $this->page->course->id;
         
+        // Create unordered list of quizes in particular course
         if ($quizes = $DB->get_records('quiz', array('course' => $courseid))) {
 			$this->content->text .= html_writer::start_tag('ul');
 		foreach ($quizes as $quiz) {
