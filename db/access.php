@@ -2,7 +2,7 @@
 defined('MOODLE_INTERNAL') || die();
  
 $capabilities = array(
-    
+
     'block/export_quiz:myaddinstance' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -24,5 +24,5 @@ $capabilities = array(
         ),
  
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
-    ),
+    )
 );

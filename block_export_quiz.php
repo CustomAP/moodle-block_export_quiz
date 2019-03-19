@@ -32,7 +32,7 @@ class block_export_quiz extends block_base{
     }
 
     /**
-	 * Should be only visible in a particular course	
+	 * Should be only visible in a particular course and in the quiz modules
     */
     public function applicable_formats() {
 		return array ('course-view' => true, 'mod-quiz' => true);

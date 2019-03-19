@@ -60,7 +60,7 @@ if(!$cm->uservisible)
     print_error('noaccess', 'block_export_quiz');
 
 
-// Initialise $PAGE. Nothing is output, so this does not really matter. Just avoids notices.
+// Initialise $PAGE.
 $nexturl = new moodle_url('/question/type/stack/questiontestrun.php', $urlparams);
 $PAGE->set_url('/blocks/export_quiz/export.php', $urlparams);
 $PAGE->set_heading(get_string('pluginname','block_export_quiz'));
@@ -86,8 +86,11 @@ if (!$qformat->exportpreprocess()) {
     send_file_not_found();
 }
 
-// Actual export process to get the converted string
-if (!$content = $qformat->exportprocess(true)) {
+/* Actual export process to get the converted string
+ * Check capabilites set to false since already checks done for quiz availability
+ * This also adds the functionality of exporting the quiz for the students
+ */
+if (!$content = $qformat->exportprocess(false)) {
     send_file_not_found();
 }
 
