@@ -74,22 +74,16 @@ if ($quiz = $DB->get_record('quiz', array('id' => $quizid))) {
     $filename = $quiz->name;
 }
 
-// Append all contents after converting each question to xml in $file variable
-$file = '';
-foreach ($questiondata as $key => $value) {
-    $qformat->setQuestions([$value]);
+$qformat->setQuestions($questiondata);
 
-    // Pre-processing the export
-    if (!$qformat->exportpreprocess()) {
-        send_file_not_found();
-    }
-
-    // Actual export process to get the converted string
-    if (!$content = $qformat->exportprocess(true)) {
-        send_file_not_found();
-    }
-
-    $file .= $content;
+// Pre-processing the export
+if (!$qformat->exportpreprocess()) {
+    send_file_not_found();
 }
 
-send_file($file, $filename, 0, 0, true, true, $qformat->mime_type());
+// Actual export process to get the converted string
+if (!$content = $qformat->exportprocess(true)) {
+    send_file_not_found();
+}
+
+send_file($content, $filename, 0, 0, true, true, $qformat->mime_type());
