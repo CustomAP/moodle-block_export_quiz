@@ -23,13 +23,13 @@
  */
 
 require_once(__DIR__.'/../../config.php');
-
 require_once($CFG->libdir . '/questionlib.php');
-require_once($CFG->dirroot . '/question/format/xml/format.php');
+require_once($CFG->dirroot . '/question/format.php');
 
 // Get the parameters from the URL.
 $quizid = required_param('id', PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
+$format = required_param('format', PARAM_ALPHANUMEXT);
 
 if ($courseid) {
     require_login($courseid);
@@ -39,7 +39,7 @@ if ($courseid) {
     print_error('missingcourseorcmid', 'question');
 }
 
-// require_sesskey(); 
+require_sesskey(); 
 
 // Load the necessary data.
 $contexts = new question_edit_contexts($thiscontext);
@@ -66,8 +66,16 @@ $PAGE->set_url('/blocks/export_quiz/export.php', $urlparams);
 $PAGE->set_heading(get_string('pluginname','block_export_quiz'));
 $PAGE->set_pagelayout('admin');
 
+// Check if the question format is readable, if yes import it : This way support is added for any third-party question format installed
+if (!is_readable($CFG->dirroot . "/question/format/{$format}/format.php")) {
+    print_error('unknowformat', '', '', $format);
+} else{
+    require_once($CFG->dirroot . "/question/format/{$format}/format.php");
+}
+
 // Set up the export format.
-$qformat = new qformat_xml();
+$classname = 'qformat_' . $format;
+$qformat = new $classname();
 $qformat->setContexts($contexts->having_one_edit_tab_cap('export'));
 $qformat->setCourse($COURSE);
 $qformat->setCattofile(false);
@@ -75,7 +83,9 @@ $qformat->setContexttofile(false);
 $qformat->setQuestions($questiondata);
 
 // Get quiz name to assign it to file name used for exporting
-$filename = get_string('quiz', 'block_export_quiz');
+$filename = get_string('quiz', 'block_export_quiz').
+    $qformat->export_file_extension();
+
 if ($quiz = $DB->get_record('quiz', array('id' => $quizid))) {
     $filename = $quiz->name;
 }

@@ -22,6 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once(__DIR__.'/../../config.php');
+require_once('export_quiz_form.php');
+
 class block_export_quiz extends block_base{
 
 	/**
@@ -49,7 +52,7 @@ class block_export_quiz extends block_base{
      * @return stdClass the content
      */
     public function get_content() {
-        global $COURSE, $DB;
+        global $COURSE, $DB, $PAGE;
 
         if ($this->content !== null) {
             return $this->content;
@@ -57,33 +60,52 @@ class block_export_quiz extends block_base{
 
         $this->content = new stdClass;
         $this->content->text = '';
-        $this->content->footer = get_string('footer', 'block_export_quiz');
 
         $courseid = $this->page->course->id;
+
+        $quiztags = array();
         
-        // Create unordered list of quizes in particular course
+        /**
+         * Adding quiz names and corresponding urls created in $quiztags array 
+         */
         if ($quizes = $DB->get_records('quiz', array('course' => $courseid))) {
-			$this->content->text .= html_writer::start_tag('ul');
-		foreach ($quizes as $quiz) {
+    		foreach ($quizes as $quiz) {
 
-                /**
-                 * Check if the Quiz is visible to the user only then display it : 
-                 * Teacher can choose to hide the quiz from the students in that case it should not be visible to students
-                 */
-                $modinfo = get_fast_modinfo($this->page->course);
-                $cm = $modinfo->get_cm($DB->get_record('course_modules', array('module' => 16, 'instance' => $quiz->id))->id);
-                if(!$cm->uservisible)
-                    continue;
+                    /**
+                     * Check if the Quiz is visible to the user only then display it : 
+                     * Teacher can choose to hide the quiz from the students in that case it should not be visible to students
+                     */
+                    $modinfo = get_fast_modinfo($this->page->course);
+                    $cm = $modinfo->get_cm($DB->get_record('course_modules', array('module' => 16, 'instance' => $quiz->id))->id);
+                    if(!$cm->uservisible)
+                        continue;
 
-				$pageurl = new moodle_url('/blocks/export_quiz/export.php',
-					array('courseid' => $COURSE->id,
-						'id' => $quiz->id));
-				$this->content->text .= html_writer::start_tag('li');
-				$this->content->text .= html_writer::link($pageurl, $quiz->name);
-				$this->content->text .= html_writer::end_tag('li');
-			}
-			$this->content->text .= html_writer::end_tag('ul');
+    				$pageurl = new moodle_url('/blocks/export_quiz/export.php',
+    					array('courseid' => $COURSE->id,
+    						'id' => $quiz->id,
+                            'sesskey' => $_SESSION['USER']->sesskey));
+
+                    $quiztags[(string)$pageurl] = $quiz->name;
+    		}
 		}
+        
+        // Export form
+        $export_quiz_form = new export_quiz_form((string)$this->page->url, array('quiz' => $quiztags));
+
+        $export_quiz_form->set_data('');
+
+        $this->content->text = $export_quiz_form->render();
+
+        if ($export_quiz_form->is_cancelled()) {
+            // Do nothing
+        } else if ($from_form = $export_quiz_form->get_data()) {
+            $url = new moodle_url($from_form->quiz, array('format' => $from_form->format));
+
+            // Don't allow force download for behat site, as pop-up can't be handled by selenium.
+            if (!defined('BEHAT_SITE_RUNNING')) {
+                $PAGE->requires->js_function_call('document.location.replace', array($url->out(false)), false, 1);
+            }
+        }
 
 		return $this->content;
     }

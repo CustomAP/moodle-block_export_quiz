@@ -29,3 +29,5 @@ $string['privacy:metadata'] = 'The Export Quiz block provides a feature to downl
 $string['footer'] = 'Click on a quiz name to download it.';
 $string['quiz'] = 'Quiz';
 $string['noaccess'] = 'No access to the given quiz';
+$string['export'] = 'Export';
+$string['format'] = 'Format';
