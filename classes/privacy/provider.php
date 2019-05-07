@@ -15,38 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains the Export Quiz Block access capabilities.
+ * Privacy Subsystem implementation for block_export_quiz.
  *
  * @package    block_export_quiz
  * @copyright  2019 onwards Ashish Pawar (github : CustomAP)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+ */	
+
+namespace block_export_quiz\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
+/**
+ * Privacy Subsystem implementation for block_export_quiz.
+ *
+ * @package    block_export_quiz
+ * @copyright  2019 onwards Ashish Pawar (github : CustomAP)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */	
+class provider implements \core_privacy\local\metadata\null_provider {
 
-    'block/export_quiz:myaddinstance' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'user' => CAP_ALLOW
-        ),
-
-        'clonepermissionsfrom' => 'moodle/my:manageblocks'
-    ),
-
-
-    'block/export_quiz:addinstance' => array(
-        'riskbitmask' => RISK_SPAM | RISK_XSS,
-
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_BLOCK,
-        'archetypes' => array(
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        ),
-
-        'clonepermissionsfrom' => 'moodle/site:manageblocks'
-    )
-);
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return  string
+     */
+    public static function get_reason() : string {
+        return 'privacy:metadata';
+    }
+}

@@ -22,12 +22,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
-require_once('export_quiz_form.php');
+defined('MOODLE_INTERNAL') || die();
+
+require_once('block_export_quiz_form.php');
 
 class block_export_quiz extends block_base{
 
-	/**
+    /**
      * Initialise the block.
      */
     public function init() {
@@ -35,16 +36,16 @@ class block_export_quiz extends block_base{
     }
 
     /**
-	 * Should be only visible in a particular course and in the quiz modules
+     * Should be only visible in a particular course and in the quiz modules
     */
     public function applicable_formats() {
-		return array ('course-view' => true, 'mod-quiz' => true);
-	}
+        return array ('course-view' => true, 'mod-quiz' => true);
+    }
 
 
-	public function get_content_type() {
-		return BLOCK_TYPE_TEXT;
-	}
+    public function get_content_type() {
+        return BLOCK_TYPE_TEXT;
+    }
 
     /**
      * Return the content of this block.
@@ -64,33 +65,30 @@ class block_export_quiz extends block_base{
         $courseid = $this->page->course->id;
 
         $quiztags = array();
-        
+       
         /**
-         * Adding quiz names and corresponding urls created in $quiztags array 
+         * Adding quiz names and corresponding urls created in $quiztags array
          */
-        if ($quizes = $DB->get_records('quiz', array('course' => $courseid))) {
-    		foreach ($quizes as $quiz) {
+        $quizes = get_fast_modinfo($this->page->course)->instances['quiz'];
+        foreach ($quizes as $quiz) {
 
-                    /**
-                     * Check if the Quiz is visible to the user only then display it : 
-                     * Teacher can choose to hide the quiz from the students in that case it should not be visible to students
-                     */
-                    $modinfo = get_fast_modinfo($this->page->course);
-                    $cm = $modinfo->get_cm($DB->get_record('course_modules', array('module' => 16, 'instance' => $quiz->id))->id);
-                    if(!$cm->uservisible)
-                        continue;
+                /**
+                 * Check if the Quiz is visible to the user only then display it :
+                 * Teacher can choose to hide the quiz from the students in that case it should not be visible to students
+                 */
+                if(!$quiz->uservisible)
+                    continue;
 
-    				$pageurl = new moodle_url('/blocks/export_quiz/export.php',
-    					array('courseid' => $COURSE->id,
-    						'id' => $quiz->id,
-                            'sesskey' => $_SESSION['USER']->sesskey));
+                $pageurl = new moodle_url('/blocks/export_quiz/export.php',
+                    array('courseid' => $COURSE->id,
+                        'id' => $quiz->id,
+                        'sesskey' => $_SESSION['USER']->sesskey));
 
-                    $quiztags[(string)$pageurl] = $quiz->name;
-    		}
-		}
-        
+                $quiztags[(string)$pageurl] = $quiz->name;
+        }
+       
         // Export form
-        $export_quiz_form = new export_quiz_form((string)$this->page->url, array('quiz' => $quiztags));
+        $export_quiz_form = new block_export_quiz_form((string)$this->page->url, array('quiz' => $quiztags));
 
         $export_quiz_form->set_data('');
 
@@ -107,6 +105,6 @@ class block_export_quiz extends block_base{
             }
         }
 
-		return $this->content;
+        return $this->content;
     }
 }

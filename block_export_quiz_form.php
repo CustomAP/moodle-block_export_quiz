@@ -31,32 +31,32 @@ require_once($CFG->libdir . '/questionlib.php');
  * Form to export questions from the quiz.
  *
  *  @copyright  2019 onwards Ashish Pawar (github : CustomAP)
- * 	@license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *     @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class export_quiz_form extends moodleform {
+class block_export_quiz_form extends moodleform {
 
-	function definition(){
-		$mform = $this->_form;
+    function definition(){
+        $mform = $this->_form;
 
-		$quizes = $this->_customdata['quiz'];
-		$format = get_import_export_formats('export');
+        $quizes = $this->_customdata['quiz'];
+        $format = get_import_export_formats('export');
 
-		$formats = array();
+        $formats = array();
 
-		foreach ($format as $shortname => $fileformatname){
-			$formats[$shortname] = $fileformatname;
-		}
+        foreach ($format as $shortname => $fileformatname) {
+            $formats[$shortname] = $fileformatname;
+        }
 
-		// Quiz select
-		$mform->addElement('select', 'quiz', get_string('quiz', 'block_export_quiz'),
-				$quizes);
+        // Quiz select.
+        $mform->addElement('select', 'quiz', get_string('quiz', 'block_export_quiz'),
+                $quizes);
 
-		// Format select
-		$mform->addElement('select', 'format', get_string('format', 'block_export_quiz'),
-				$formats);
+        // Format select.
+        $mform->addElement('select', 'format', get_string('format', 'block_export_quiz'),
+                $formats);
 
-		// Submit buttons.
+        // Submit buttons.
         $this->add_action_buttons(false, get_string('export', 'block_export_quiz'));
-	}
+    }
 }

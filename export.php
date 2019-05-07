@@ -39,7 +39,7 @@ if ($courseid) {
     print_error('missingcourseorcmid', 'question');
 }
 
-require_sesskey(); 
+require_sesskey();
 
 // Load the necessary data.
 $contexts = new question_edit_contexts($thiscontext);
@@ -47,11 +47,11 @@ $questiondata = array();
 if ($questions = $DB->get_records('quiz_slots', array('quizid' => $quizid))) {
     foreach ($questions as $question) {
         array_push($questiondata, question_bank::load_question_data($question->questionid));
-    }   
+    }
 }
 
 /**
- * Check if the Quiz is visible to the user only then display it : 
+ * Check if the Quiz is visible to the user only then display it :
  * Teacher can choose to hide the quiz from the students in that case it should not be visible to students
  */
 $modinfo = get_fast_modinfo($courseid);
@@ -59,17 +59,16 @@ $cm = $modinfo->get_cm($DB->get_record('course_modules', array('module' => 16, '
 if(!$cm->uservisible)
     print_error('noaccess', 'block_export_quiz');
 
-
 // Initialise $PAGE.
 $nexturl = new moodle_url('/question/type/stack/questiontestrun.php', $urlparams);
 $PAGE->set_url('/blocks/export_quiz/export.php', $urlparams);
 $PAGE->set_heading(get_string('pluginname','block_export_quiz'));
 $PAGE->set_pagelayout('admin');
 
-// Check if the question format is readable, if yes import it : This way support is added for any third-party question format installed
+// Check if the question format is readable, if yes import it : This way support is added for any third-party question format installed.
 if (!is_readable($CFG->dirroot . "/question/format/{$format}/format.php")) {
     print_error('unknowformat', '', '', $format);
-} else{
+} else {
     require_once($CFG->dirroot . "/question/format/{$format}/format.php");
 }
 
@@ -82,7 +81,7 @@ $qformat->setCattofile(false);
 $qformat->setContexttofile(false);
 $qformat->setQuestions($questiondata);
 
-// Get quiz name to assign it to file name used for exporting
+// Get quiz name to assign it to file name used for exporting.
 $filename = get_string('quiz', 'block_export_quiz').
     $qformat->export_file_extension();
 
@@ -90,8 +89,7 @@ if ($quiz = $DB->get_record('quiz', array('id' => $quizid))) {
     $filename = $quiz->name;
 }
 
-
-// Pre-processing the export
+// Pre-processing the export.
 if (!$qformat->exportpreprocess()) {
     send_file_not_found();
 }
