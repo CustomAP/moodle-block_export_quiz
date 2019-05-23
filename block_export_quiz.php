@@ -81,8 +81,8 @@ class block_export_quiz extends block_base{
 
                 $pageurl = new moodle_url('/blocks/export_quiz/export.php',
                     array('courseid' => $COURSE->id,
-                        'id' => $quiz->id,
-                        'sesskey' => $_SESSION['USER']->sesskey));
+                        'id' => $quiz->instance,
+                        'sesskey' => sesskey()));
 
                 $quiztags[(string)$pageurl] = $quiz->name;
         }

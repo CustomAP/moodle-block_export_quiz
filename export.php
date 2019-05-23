@@ -55,7 +55,7 @@ if ($questions = $DB->get_records('quiz_slots', array('quizid' => $quizid))) {
  * Teacher can choose to hide the quiz from the students in that case it should not be visible to students
  */
 $modinfo = get_fast_modinfo($courseid);
-$cm = $modinfo->get_cm($DB->get_record('course_modules', array('module' => 16, 'instance' => $quizid))->id);
+$cm = $modinfo->instances["quiz"][$quizid];
 if(!$cm->uservisible)
     print_error('noaccess', 'block_export_quiz');
 
@@ -82,12 +82,7 @@ $qformat->setContexttofile(false);
 $qformat->setQuestions($questiondata);
 
 // Get quiz name to assign it to file name used for exporting.
-$filename = get_string('quiz', 'block_export_quiz').
-    $qformat->export_file_extension();
-
-if ($quiz = $DB->get_record('quiz', array('id' => $quizid))) {
-    $filename = $quiz->name;
-}
+$filename = $cm->name. $qformat->export_file_extension();
 
 // Pre-processing the export.
 if (!$qformat->exportpreprocess()) {
