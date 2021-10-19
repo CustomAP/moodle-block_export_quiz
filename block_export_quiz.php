@@ -24,7 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once('block_export_quiz_form.php');
+use block_export_quiz\form\block_export_quiz_form;
+// use block_export_quiz\export\block_export_quiz_export;
+
+// require_once('block_export_quiz_form.php');
+require_once($CFG->libdir . '/questionlib.php');
 
 class block_export_quiz extends block_base{
 
@@ -52,8 +56,9 @@ class block_export_quiz extends block_base{
      *
      * @return stdClass the content
      */
-    public function get_content() {
-        global $COURSE, $DB, $PAGE;
+    public function get_content() 
+    {
+        global $COURSE, $DB, $PAGE, $OUTPUT;
 
         if ($this->content !== null) {
             return $this->content;
@@ -70,6 +75,7 @@ class block_export_quiz extends block_base{
          * Adding quiz names and corresponding urls created in $quiztags array
          */
         $quizes = get_fast_modinfo($this->page->course)->instances['quiz'];
+
         foreach ($quizes as $quiz) {
 
                 /**
@@ -92,7 +98,17 @@ class block_export_quiz extends block_base{
 
         $export_quiz_form->set_data('');
 
-        $this->content->text = $export_quiz_form->render();
+        // $this->content->text = $export_quiz_form->render();
+        
+        $content = [
+            'form' => $export_quiz_form->render(),
+        ];
+
+        // print_object($export_quiz_form->render());
+        // die();
+
+        $this->content->text = $OUTPUT->render_from_template('block_export_quiz/blockexportquiz', $content);
+
 
         if ($export_quiz_form->is_cancelled()) {
             // Do nothing

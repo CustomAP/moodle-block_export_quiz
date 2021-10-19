@@ -22,10 +22,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace block_export_quiz\form;
 
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->libdir . '/questionlib.php');
 
+use moodleform;
+use questionlib;
 
 /**
  * Form to export questions from the quiz.
@@ -48,13 +51,17 @@ class block_export_quiz_form extends moodleform {
             $formats[$shortname] = $fileformatname;
         }
 
+        $mform->addElement('html', '<div>');
+        $mform->addElement('html', ' <label for="exampleInputEmail1">'.get_string('quiz', 'block_export_quiz').'</label>');
         // Quiz select.
-        $mform->addElement('select', 'quiz', get_string('quiz', 'block_export_quiz'),
-                $quizes);
-
+        $mform->addElement('select', 'quiz','',$quizes);
+        $mform->addElement('html', '</div>');
+        
+        $mform->addElement('html', '<div>');
+        $mform->addElement('html', ' <label for="exampleInputEmail1">'.get_string('format', 'block_export_quiz').'</label>');
         // Format select.
-        $mform->addElement('select', 'format', get_string('format', 'block_export_quiz'),
-                $formats);
+        $mform->addElement('select', 'format','',$formats);
+        $mform->addElement('html', '</div>');
 
         // Submit buttons.
         $this->add_action_buttons(false, get_string('export', 'block_export_quiz'));
