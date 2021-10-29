@@ -29,10 +29,12 @@ require_once(__DIR__.'/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/question/format.php');
 
+require_login();
+
 // Get the parameters from the URL.
 $quizid = required_param('id', PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $format = required_param('format', PARAM_ALPHANUMEXT);
 
-$load_file_exporter = new block_export_quiz_export;
-$load_file_exporter->export_quiz_questions($quizid,$courseid,$format);
+$initexportclass = new block_export_quiz_export;
+$initexportclass->export_quiz_questions($quizid, $courseid, $format);

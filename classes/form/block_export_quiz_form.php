@@ -24,6 +24,8 @@
 
 namespace block_export_quiz\form;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->libdir . '/questionlib.php');
 
@@ -33,13 +35,16 @@ use questionlib;
 /**
  * Form to export questions from the quiz.
  *
- *  @copyright  2019 onwards Ashish Pawar (github : CustomAP)
- *     @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2019 onwards Ashish Pawar (github : CustomAP)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-class block_export_quiz_form extends moodleform {
-
-    function definition(){
+class block_export_quiz_form extends moodleform
+{
+    /**
+     * moodle form API overrided definition() method,
+     * and it contains the required form elements to render the form to the users
+     */
+    public function definition() {
         $mform = $this->_form;
 
         $quizes = $this->_customdata['quiz'];
@@ -54,15 +59,13 @@ class block_export_quiz_form extends moodleform {
         $mform->addElement('html', '<div>');
         $mform->addElement('html', ' <label for="exampleInputEmail1">'.get_string('quiz', 'block_export_quiz').'</label>');
         // Quiz select.
-        $mform->addElement('select', 'quiz','',$quizes);
+        $mform->addElement('select', 'quiz', '', $quizes);
         $mform->addElement('html', '</div>');
-        
         $mform->addElement('html', '<div>');
         $mform->addElement('html', ' <label for="exampleInputEmail1">'.get_string('format', 'block_export_quiz').'</label>');
         // Format select.
-        $mform->addElement('select', 'format','',$formats);
+        $mform->addElement('select', 'format', '', $formats);
         $mform->addElement('html', '</div>');
-
         // Submit buttons.
         $this->add_action_buttons(false, get_string('export', 'block_export_quiz'));
     }

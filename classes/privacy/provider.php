@@ -20,7 +20,7 @@
  * @package    block_export_quiz
  * @copyright  2019 onwards Ashish Pawar (github : CustomAP)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */	
+ */
 
 namespace block_export_quiz\privacy;
 
@@ -32,8 +32,9 @@ defined('MOODLE_INTERNAL') || die();
  * @package    block_export_quiz
  * @copyright  2019 onwards Ashish Pawar (github : CustomAP)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */	
-class provider implements \core_privacy\local\metadata\null_provider {
+ */
+class provider implements \core_privacy\local\metadata\null_provider
+{
 
     /**
      * Get the language string identifier with the component's language

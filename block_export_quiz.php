@@ -25,11 +25,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 use block_export_quiz\form\block_export_quiz_form;
-// use block_export_quiz\export\block_export_quiz_export;
-
-// require_once('block_export_quiz_form.php');
 require_once($CFG->libdir . '/questionlib.php');
 
+/**
+ * export quiz bootstrap class, which initialise plugin features
+ */
 class block_export_quiz extends block_base{
 
     /**
@@ -40,13 +40,16 @@ class block_export_quiz extends block_base{
     }
 
     /**
-     * Should be only visible in a particular course and in the quiz modules
-    */
+     * Should be only visible in a particular course and in the quiz modules.
+     */
     public function applicable_formats() {
         return array ('course-view' => true, 'mod-quiz' => true);
     }
 
 
+    /**
+     * This method returns the value of $this->content_type, and is the preferred way of accessing that variable.
+     */
     public function get_content_type() {
         return BLOCK_TYPE_TEXT;
     }
@@ -56,9 +59,8 @@ class block_export_quiz extends block_base{
      *
      * @return stdClass the content
      */
-    public function get_content() 
-    {
-        global $COURSE, $DB, $PAGE, $OUTPUT;
+    public function get_content() {
+        global $COURSE, $DB, $OUTPUT;
 
         if ($this->content !== null) {
             return $this->content;
@@ -70,54 +72,41 @@ class block_export_quiz extends block_base{
         $courseid = $this->page->course->id;
 
         $quiztags = array();
-       
-        /**
-         * Adding quiz names and corresponding urls created in $quiztags array
-         */
+        // Adding quiz names and corresponding urls created in $quiztags array.
         $quizes = get_fast_modinfo($this->page->course)->instances['quiz'];
 
         foreach ($quizes as $quiz) {
 
-                /**
-                 * Check if the Quiz is visible to the user only then display it :
-                 * Teacher can choose to hide the quiz from the students in that case it should not be visible to students
-                 */
-                if(!$quiz->uservisible)
-                    continue;
+            // Check if the Quiz is visible to the user only then display it.
+            // Teacher can choose to hide the quiz from the students in that case it should not be visible to students.
+            if (!$quiz->uservisible) {
+                continue;
+            }
+            $pageurl = new moodle_url('/blocks/export_quiz/export.php',
+                array('courseid' => $COURSE->id,
+                    'id' => $quiz->instance,
+                    'sesskey' => sesskey()));
 
-                $pageurl = new moodle_url('/blocks/export_quiz/export.php',
-                    array('courseid' => $COURSE->id,
-                        'id' => $quiz->instance,
-                        'sesskey' => sesskey()));
-
-                $quiztags[(string)$pageurl] = $quiz->name;
+            $quiztags[(string)$pageurl] = $quiz->name;
         }
-       
-        // Export form
-        $export_quiz_form = new block_export_quiz_form((string)$this->page->url, array('quiz' => $quiztags));
-
-        $export_quiz_form->set_data('');
-
-        // $this->content->text = $export_quiz_form->render();
-        
+        // Export form.
+        $exportquizform = new block_export_quiz_form((string)$this->page->url, array('quiz' => $quiztags));
+        $exportquizform->set_data('');
         $content = [
-            'form' => $export_quiz_form->render(),
+            'form' => $exportquizform->render(),
         ];
-
-        // print_object($export_quiz_form->render());
-        // die();
 
         $this->content->text = $OUTPUT->render_from_template('block_export_quiz/blockexportquiz', $content);
 
-
-        if ($export_quiz_form->is_cancelled()) {
-            // Do nothing
-        } else if ($from_form = $export_quiz_form->get_data()) {
-            $url = new moodle_url($from_form->quiz, array('format' => $from_form->format));
+        if ($exportquizform->is_cancelled()) {
+            // Do nothing.
+            die();
+        } else if ($mform = $exportquizform->get_data()) {
+            $url = new moodle_url($mform->quiz, array('format' => $mform->format));
 
             // Don't allow force download for behat site, as pop-up can't be handled by selenium.
             if (!defined('BEHAT_SITE_RUNNING')) {
-                $PAGE->requires->js_function_call('document.location.replace', array($url->out(false)), false, 1);
+                $this->page->requires->js_function_call('document.location.replace', array($url->out(false)), false, 1);
             }
         }
 

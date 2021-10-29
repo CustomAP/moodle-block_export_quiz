@@ -31,3 +31,5 @@ $string['quiz'] = 'Quiz';
 $string['noaccess'] = 'No access to the given quiz';
 $string['export'] = 'Export';
 $string['format'] = 'Format';
+$string['missingcourseid'] = 'Missing course ID';
+$string['unknowformat'] = 'Unknowon file format provided';

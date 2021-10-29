@@ -25,37 +25,46 @@
 namespace block_export_quiz\export;
 
 use context_course;
-// use question_edit_contexts;
 use question_bank;
 use moodle_url;
-use block_export_quiz\export\dependencies\format_handler;;
+use block_export_quiz\export\dependencies\format_handler;
+use moodle_exception;
 
+/**
+ * This class handles quiz export requests
+ */
 class block_export_quiz_export extends format_handler
 {
-    
     /**
-     * returns 
+     * based on the provided on run env, this methdo eitehr return files for download or return TRUE for unit testing
      * @param int $quizid
      * @param int $courseid
      * @param string $format
+     * @param bool $isunittesting
      * @return mixed
      */
-    public function export_quiz_questions(int $quizid, int $courseid, string $format)
-    {
-        global $DB, $PAGE,$CFG;
+    public function export_quiz_questions(int $quizid, int $courseid, string $format, bool $isunittesting = false) {
+        global $DB, $CFG, $PAGE;
 
         if (isset($courseid)) {
-            require_login($courseid);
+
+            if (!$isunittesting) {
+
+                require_login($courseid);
+            }
             $thiscontext = context_course::instance($courseid);
             $urlparams['courseid'] = $courseid;
         } else {
-            print_error('missingcourseorcmid', 'question');
+            throw new moodle_exception(get_string('missingcourseid', 'block_export_quiz'));
         }
-        
-        require_sesskey();
+
+        if (!$isunittesting) {
+
+            require_sesskey();
+
+        }
 
         // Load the necessary data.
-        // $contexts = new question_edit_contexts($thiscontext);
         $questiondata = array();
         if ($questions = $DB->get_records('quiz_slots', array('quizid' => $quizid))) {
             foreach ($questions as $question) {
@@ -63,44 +72,26 @@ class block_export_quiz_export extends format_handler
             }
         }
 
-        /**
-         * Check if the Quiz is visible to the user only then display it :
-         * Teacher can choose to hide the quiz from the students in that case it should not be visible to students
-         */
+        // Check if the Quiz is visible to the user only then display it.
+        // Teacher can choose to hide the quiz from the students in that case it should not be visible to students.
         $modinfo = get_fast_modinfo($courseid);
         $cm = $modinfo->instances["quiz"][$quizid];
-        if(!$cm->uservisible)
-            print_error('noaccess', 'block_export_quiz');
+        if (!$cm->uservisible) {
+            throw new moodle_exception(get_string('noaccess', 'block_export_quiz'));
+        }
 
         // Initialise $PAGE.
         $nexturl = new moodle_url('/question/type/stack/questiontestrun.php', $urlparams);
-        $PAGE->set_url('/blocks/export_quiz/exportnew.php', $urlparams);
-        $PAGE->set_heading(get_string('pluginname','block_export_quiz'));
+        $PAGE->set_url('/blocks/export_quiz/export.php', $urlparams);
+        $PAGE->set_heading(get_string('pluginname', 'block_export_quiz'));
         $PAGE->set_pagelayout('admin');
 
-        // // Check if the question format is readable, if yes import it : This way support is added for any third-party question format installed.
-        // if (!is_readable($CFG->dirroot . "/question/format/{$format}/format.php")) {
-        //     print_error('unknowformat', '', '', $format);
-        // } else {
-        //     require_once($CFG->dirroot . "/question/format/{$format}/format.php");
-        // }
-
-        // // Set up the export format.
-        // $classname = 'qformat_' . $format;
-        // $qformat = new $classname();
-        // $qformat->setContexts($contexts->having_one_edit_tab_cap('export'));
-        // $qformat->setCourse($COURSE);
-        // $qformat->setCattofile(false);
-        // $qformat->setContexttofile(false);
-        // $qformat->setQuestions($questiondata);
-
-        $choosenFormat = $this->get_file_format($thiscontext,$format,$questiondata);
-
+        // Get instance of the requested file format class.
+        $choosenformat = $this->get_file_format($thiscontext, $format, $questiondata);
         // Get quiz name to assign it to file name used for exporting.
-        $filename = $cm->name. $choosenFormat->export_file_extension();
-
+        $filename = $cm->name. $choosenformat->export_file_extension();
         // Pre-processing the export.
-        if (!$choosenFormat->exportpreprocess()) {
+        if (!$choosenformat->exportpreprocess()) {
             send_file_not_found();
         }
 
@@ -108,11 +99,17 @@ class block_export_quiz_export extends format_handler
         * Check capabilites set to false since already checks done for quiz availability
         * This also adds the functionality of exporting the quiz for the students
         */
-        if (!$content = $choosenFormat->exportprocess(false)) {
+        if (!$content = $choosenformat->exportprocess(false)) {
             send_file_not_found();
         }
 
-        send_file($content, $filename, 0, 0, true, true, $choosenFormat->mime_type());
+        if ($isunittesting) {
+            return true;
+        }
+
+        if (!$isunittesting) {
+            send_file($content, $filename, 0, 0, true, true, $choosenformat->mime_type());
+        }
     }
 
 }

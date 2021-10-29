@@ -25,29 +25,28 @@
 namespace block_export_quiz\export\dependencies;
 
 use question_edit_contexts;
+use moodle_exception;
 
 /**
  * This class contains all format handler methods
  */
 class format_handler
 {
-    
     /**
      * This method handles the file format request and returnes instance of the selected file format class with the required data
-     * @param object $courseInstance
+     * @param object $courseinstance
      * @param string $format
      * @param array $questiondata
      * @return object
      */
-    public function get_file_format($courseInstance,$format, array $questiondata)
-    {   
-        global $CFG;
+    public function get_file_format($courseinstance, string $format, array $questiondata) {
+        global $CFG, $COURSE;
 
-        $contexts = new question_edit_contexts($courseInstance);
-        
-        // Check if the question format is readable, if yes import it : This way support is added for any third-party question format installed.
+        $contexts = new question_edit_contexts($courseinstance);
+        // Check if the question format is readable, if yes import it.
+        // This way support is added for any third-party question format installed.
         if (!is_readable($CFG->dirroot . "/question/format/{$format}/format.php")) {
-            print_error('unknowformat', '', '', $format);
+            throw new moodle_exception(get_string('unknowformat', 'block_export_quiz'));
         } else {
             require_once($CFG->dirroot . "/question/format/{$format}/format.php");
         }
