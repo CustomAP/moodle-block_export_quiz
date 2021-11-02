@@ -21,6 +21,7 @@
  * @copyright  2019 onwards Ashish Pawar (github : CustomAP)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 $string['export_quiz:addinstance'] = 'Add a new Export Quiz block';
 $string['export_quiz:myaddinstance'] = 'Add a new Export Quiz block to Dashboard';
@@ -31,3 +32,7 @@ $string['quiz'] = 'Quiz';
 $string['noaccess'] = 'No access to the given quiz';
 $string['export'] = 'Export';
 $string['format'] = 'Format';
+$string['missingcourseid'] = 'Missing course ID';
+$string['unknowformat'] = 'Unknowon file format provided';
+$string['export_quiz:view'] = 'View Export Quiz block';
+$string['nopermission'] = 'You do not have have the required access permission to export quiz questions';

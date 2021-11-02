@@ -26,14 +26,29 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
+     // Whether or not a user can see the block.
+     'block/export_quiz:view' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'student' => CAP_PREVENT,
+            'guest' => CAP_PREVENT,
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+        ),
+    ),
+
     'block/export_quiz:myaddinstance' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
-            'user' => CAP_ALLOW
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
         ),
 
-        'clonepermissionsfrom' => 'moodle/my:manageblocks'
+        'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
 
 
@@ -48,5 +63,6 @@ $capabilities = array(
         ),
 
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
-    )
+    ),
+
 );

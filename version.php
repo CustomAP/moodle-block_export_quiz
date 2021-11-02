@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2019050500;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2021110200;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->maturity  = MATURITY_STABLE;  // Maturity level.
-$plugin->requires  = 2011070100.03;        // Requires this Moodle version
-$plugin->component = 'block_export_quiz'; // Full name of the plugin (used for diagnostics)
-$plugin->release  = '1.0.2 (Build: 2019050500)';  // The current module release in human-readable form (x.y).
+$plugin->requires  = 2015111610.00;        // Requires this Moodle version.
+$plugin->component = 'block_export_quiz'; // Full name of the plugin (used for diagnostics).
+$plugin->release  = '2.0.0 (Build: 2021110200)';  // The current module release in human-readable form (x.y).
