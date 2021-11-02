@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains the Export Quiz: exporting the file related code.
+ * This file contains export class, which handle the export process.
  *
  * @package    block_export_quiz
  * @copyright  2019 onwards Ashish Pawar (github : CustomAP)
@@ -23,6 +23,8 @@
  */
 
 namespace block_export_quiz\export;
+
+defined('MOODLE_INTERNAL') || die();
 
 use context_course;
 use question_bank;
@@ -44,7 +46,7 @@ class block_export_quiz_export extends format_handler
      * @return mixed
      */
     public function export_quiz_questions(int $quizid, int $courseid, string $format, bool $isunittesting = false) {
-        global $DB, $CFG, $PAGE;
+        global $DB, $CFG;
 
         if (isset($courseid)) {
 
@@ -79,12 +81,6 @@ class block_export_quiz_export extends format_handler
         if (!$cm->uservisible) {
             throw new moodle_exception(get_string('noaccess', 'block_export_quiz'));
         }
-
-        // Initialise $PAGE.
-        $nexturl = new moodle_url('/question/type/stack/questiontestrun.php', $urlparams);
-        $PAGE->set_url('/blocks/export_quiz/export.php', $urlparams);
-        $PAGE->set_heading(get_string('pluginname', 'block_export_quiz'));
-        $PAGE->set_pagelayout('admin');
 
         // Get instance of the requested file format class.
         $choosenformat = $this->get_file_format($thiscontext, $format, $questiondata);

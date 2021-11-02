@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use block_export_quiz\form\block_export_quiz_form;
 require_once($CFG->libdir . '/questionlib.php');
+require_once($CFG->libdir . '/accesslib.php');
 
 /**
  * export quiz bootstrap class, which initialise plugin features
@@ -61,6 +62,11 @@ class block_export_quiz extends block_base{
      */
     public function get_content() {
         global $COURSE, $DB, $OUTPUT;
+
+        // Check if user have the required permission to export.
+        if (!has_capability('block/export_quiz:view', CONTEXT_COURSE::instance($COURSE->id))) {
+            return null;
+        }
 
         if ($this->content !== null) {
             return $this->content;

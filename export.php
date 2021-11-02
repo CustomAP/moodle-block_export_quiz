@@ -17,6 +17,9 @@
 /**
  * This file contains the Export Quiz: exporting the file related code.
  *
+ * Once user requested to export a quiz, their request will be direct here, and URL parsed and,
+ * Paramaters extracted and passed to the export class.
+ *
  * @package    block_export_quiz
  * @copyright  2019 onwards Ashish Pawar (github : CustomAP)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -36,5 +39,11 @@ $quizid = required_param('id', PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $format = required_param('format', PARAM_ALPHANUMEXT);
 
+// Check if user have the required permission to export.
+if (!has_capability('block/export_quiz:view', CONTEXT_COURSE::instance($courseid))) {
+    throw new moodle_exception(get_string('nopermission', 'block_export_quiz'));
+}
+
+// If user have permission, we start proceed with the quiz export request.
 $initexportclass = new block_export_quiz_export;
 $initexportclass->export_quiz_questions($quizid, $courseid, $format);

@@ -42,7 +42,7 @@ class block_export_quiz_form extends moodleform
 {
     /**
      * moodle form API overrided definition() method,
-     * and it contains the required form elements to render the form to the users
+     * and it contains the required form elements to render the form to users
      */
     public function definition() {
         $mform = $this->_form;

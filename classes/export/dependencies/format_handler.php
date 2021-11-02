@@ -15,7 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains the Export Quiz: exporting the file related code.
+ * This file contains format handler class, which the export format request.
+ *
+ * This file contains format handler class, which the export format request,
+ * by instantiating the requested format class and returning an instance or that class.
  *
  * @package    block_export_quiz
  * @copyright  2019 onwards Ashish Pawar (github : CustomAP)
@@ -23,6 +26,8 @@
  */
 
 namespace block_export_quiz\export\dependencies;
+
+defined('MOODLE_INTERNAL') || die();
 
 use question_edit_contexts;
 use moodle_exception;
@@ -33,11 +38,11 @@ use moodle_exception;
 class format_handler
 {
     /**
-     * This method handles the file format request and returnes instance of the selected file format class with the required data
+     * This method handles the file format request and returnes instance of the selected file format class.
      * @param object $courseinstance
      * @param string $format
      * @param array $questiondata
-     * @return object
+     * @return object $qformat
      */
     public function get_file_format($courseinstance, string $format, array $questiondata) {
         global $CFG, $COURSE;

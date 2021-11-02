@@ -65,11 +65,11 @@ class local_export_quiz_test extends advanced_testcase
     }
 
     /**
-     * test if we are able to get trigger from the export question methdod
+     * test if we are able to get trigger from the export question method
      * from the export class
      * @return void
      */
-    public function test_we_can_trigger_the_export_class_method(): void {
+    public function test_we_can_trigger_the_export_questions_method(): void {
         global $DB;
         $this->resetAfterTest();
 
