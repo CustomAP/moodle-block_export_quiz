@@ -25,11 +25,14 @@
 require_once(__DIR__.'/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/question/format.php');
+require_once($CFG->dirroot . '/mod/quiz/locallib.php');
 
 // Get the parameters from the URL.
 $quizid = required_param('id', PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $format = required_param('format', PARAM_ALPHANUMEXT);
+$modinfo = get_fast_modinfo($courseid);
+$cm = $modinfo->instances["quiz"][$quizid];
 
 if ($courseid) {
     require_login($courseid);
@@ -44,9 +47,17 @@ require_sesskey();
 // Load the necessary data.
 $contexts = new question_edit_contexts($thiscontext);
 $questiondata = array();
-if ($questions = $DB->get_records('quiz_slots', array('quizid' => $quizid))) {
-    foreach ($questions as $question) {
-        array_push($questiondata, question_bank::load_question_data($question->questionid));
+
+// Check to see if questions should exist in this quiz.
+if ($slots = $DB->get_records('quiz_slots', array('quizid' => $quizid))) {
+    // Get quiz structure.
+    $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
+    $quiz = $DB->get_record('quiz', array('id' => $quizid));
+    $quizobj = new \quiz($quiz, $cm, $course);
+    $structure = $quizobj->get_structure();
+
+    foreach ($slots as $slot) {
+        array_push($questiondata, $structure->get_question_in_slot($slot->slot));
     }
 }
 
@@ -54,8 +65,6 @@ if ($questions = $DB->get_records('quiz_slots', array('quizid' => $quizid))) {
  * Check if the Quiz is visible to the user only then display it :
  * Teacher can choose to hide the quiz from the students in that case it should not be visible to students
  */
-$modinfo = get_fast_modinfo($courseid);
-$cm = $modinfo->instances["quiz"][$quizid];
 if(!$cm->uservisible)
     print_error('noaccess', 'block_export_quiz');
 
